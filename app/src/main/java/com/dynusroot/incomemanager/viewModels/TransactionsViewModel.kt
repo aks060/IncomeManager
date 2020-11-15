@@ -61,6 +61,13 @@ class TransactionsViewModel(val db: db_dao,
         }
     }
 
+    fun updateBalance()
+    {
+        uiScope.launch {
+            total()
+        }
+    }
+
     private suspend fun total()
     {
         withContext(Dispatchers.IO){
@@ -68,6 +75,8 @@ class TransactionsViewModel(val db: db_dao,
             var subaccount=db.getSubAccountID(subaccountid.toLong())
             subaccount.balance= total.value!!
             db.updateSubAccount(subaccount)
+            Log.e("TransactionViewModel", "Updated DB")
+            Log.e("TransactionViewModel", subaccount.toString())
         }
     }
 

@@ -92,5 +92,10 @@ class AccountPage : AppCompatActivity() {
         super.onResume()
         Log.e("AccountPage", "Resume")
         viewModel.refresh()
+        viewModel.subaccountlist.observe(this, Observer {
+            subaccounts=it
+            adapter= SubAccountsAdapter(this, subaccounts)
+            gridView.adapter=adapter
+        })
     }
 }

@@ -34,7 +34,7 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         subaccountid= bundle!!.getString("subaccountid").toString().toLong()
         transactiontype=bundle!!.getString("transactiontype").toString()
         val db=incomemanager_db.get(application).dbDao
-        viewModel= AddTransactionViewModel(db, application, subaccountid)
+        viewModel= AddTransactionViewModel(db, application, subaccountid, this)
 
         viewModel.getSubAccountList()
         viewModel.accountList.observe(this, androidx.lifecycle.Observer {

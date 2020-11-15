@@ -48,6 +48,7 @@ class Transactions : AppCompatActivity() {
         viewModel.transactions.observe(this, Observer {
             adapter= SubAccountTransactionAdapter(it, this)
             initRecyclerView()
+            viewModel.updateBalance()
         })
 
         var delete=findViewById<ImageButton>(R.id.deletesubaccount)

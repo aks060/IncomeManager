@@ -1,6 +1,7 @@
 package com.dynusroot.incomemanager.viewModels
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.dynusroot.incomemanager.database.db_dao
@@ -64,8 +65,11 @@ class AccountPageViewModel(val db: db_dao,
     fun refresh()
     {
         uiScope.launch {
+            subaccountlist.postValue(ArrayList())
             fetchsubacc()
             total()
+            Log.e("AccountPageViewModel", "Completed DB")
+            Log.e("AccountPageViewModel", subaccountlist.value.toString())
         }
     }
 

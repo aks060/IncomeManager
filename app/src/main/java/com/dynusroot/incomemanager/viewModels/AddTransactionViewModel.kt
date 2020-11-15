@@ -1,8 +1,11 @@
 package com.dynusroot.incomemanager.viewModels
 
 import android.app.Application
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.dynusroot.incomemanager.database.db_dao
 import com.dynusroot.incomemanager.database.models.accounts
 import com.dynusroot.incomemanager.database.models.subaccounts
@@ -11,7 +14,8 @@ import kotlinx.coroutines.*
 
 class AddTransactionViewModel(val db: db_dao,
                               application: Application,
-                              val subaccountid:Long
+                              val subaccountid:Long,
+                              val context: Context
 ) : AndroidViewModel(application) {
     private val job= Job()
     lateinit var toastmssg: MutableLiveData<String>
@@ -108,6 +112,10 @@ class AddTransactionViewModel(val db: db_dao,
             subaccount=db.getSubAccountID(subaccountid.toLong())
             subaccount.balance= totalamount.value!!
             db.updateSubAccount(subaccount)
+            Log.e("AddTransactionViewModel", "Updated DB")
+            Log.e("AddTransactionViewModel", subaccount.toString())
+            Log.e("AddTransactionViewModel", totalamount.toString())
+
         }
     }
 }

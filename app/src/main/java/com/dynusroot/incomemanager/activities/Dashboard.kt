@@ -71,6 +71,11 @@ class Dashboard : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.refresh()
+        viewModel.accountlist.observe(this, Observer {
+            accounts=it
+            adapter= AccountsAdapter(this, accounts)
+            gridView.adapter=adapter
+        })
     }
 }
 
