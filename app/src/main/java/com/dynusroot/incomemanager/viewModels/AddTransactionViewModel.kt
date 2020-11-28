@@ -79,12 +79,19 @@ class AddTransactionViewModel(val db: db_dao,
 
     fun transfermoney(amount:Double, desc:String, date:String, transferto:Long, orderByDate: String)
     {
-        var trans=transactions(type = "T", orderBydate = orderByDate, subaccountID = subaccountid.toLong(), amount = amount, date = date, description = desc, amountafter = (totalamount.value?.minus(amount)), transferto = transferto)
+        var transferedto: subaccounts?=null
+        uiScope.launch {
+            withContext(Dispatchers.IO){
+                transferedto=db.getSubAccountID(transferto)
+            }
+        }
         var transto=transactions(type = "C", orderBydate = orderByDate, subaccountID = transferto, amount = amount, date = date, description = desc+" From "+subaccount.name, amountafter = (totalamount.value?.minus(amount)), transferto = transferto)
 
         uiScope.launch {
             withContext(Dispatchers.IO){
                 try {
+                    transferedto=db.getSubAccountID(transferto)
+                    var trans=transactions(type = "T", orderBydate = orderByDate, subaccountID = subaccountid.toLong(), amount = amount, date = date, description = desc+" To "+transferedto?.name, amountafter = (totalamount.value?.minus(amount)), transferto = transferto)
                     db.addTransaction(trans)
                     db.addTransaction(transto)
                     total()

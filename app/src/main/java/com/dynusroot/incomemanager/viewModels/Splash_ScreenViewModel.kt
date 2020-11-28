@@ -31,6 +31,7 @@ class Splash_ScreenViewModel
         }
     }
 
+
     private suspend fun updateLoggedinUser()
     {
         var userres:userDBModel?=null

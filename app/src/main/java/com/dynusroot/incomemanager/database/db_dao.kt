@@ -48,6 +48,9 @@ interface db_dao {
     @Query("DELETE FROM transactions WHERE subaccountID=:subid")
     fun deleteTransactionsSub(subid: Long)
 
+    @Query("DELETE FROM transactions WHERE id=:tid")
+    fun deleteTransaction(tid: Long)
+
     @Query("DELETE FROM subaccounts WHERE id=:subid")
     fun deleteSubAccountDB(subid:Long)
 
@@ -77,4 +80,7 @@ interface db_dao {
 
     @Query("UPDATE accounts SET totalBalance=(SELECT COALESCE(SUM(balance), 0) FROM subaccounts WHERE parentaccount=:accid) WHERE id=:accid")
     fun updateAccountBalance(accid: Long)
+
+    @Update
+    fun updateTransaction(tr: transactions)
 }

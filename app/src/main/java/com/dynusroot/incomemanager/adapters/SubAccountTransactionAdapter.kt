@@ -2,9 +2,11 @@ package com.dynusroot.incomemanager.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -15,9 +17,11 @@ import java.time.ZoneId
 
 class SubAccountTransactionAdapter(
     d: ArrayList<transactions>,
-    val context: Context
+    val context: Context,
+    private var popup: popupOption
 ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private lateinit var data: ArrayList<transactions>
+    lateinit var data: ArrayList<transactions>
+    var totalAmt:Double=0.0
 
     init {
         data= ArrayList()
@@ -30,7 +34,8 @@ class SubAccountTransactionAdapter(
                 R.layout.list_transaction,
                 parent,
                 false
-            )
+            ),
+                popup
         )
     }
 
@@ -38,7 +43,7 @@ class SubAccountTransactionAdapter(
         when(holder)
         {
             is viewholder -> {
-                holder.bind(data.get(position), position)
+                totalAmt=holder.bind(data.get(position), position, totalAmt)
             }
         }
     }
@@ -47,7 +52,7 @@ class SubAccountTransactionAdapter(
         return data.size
     }
 
-    class viewholder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class viewholder(itemView: View, popupadap: popupOption) : RecyclerView.ViewHolder(itemView)
     {
         val main=itemView.findViewById<ConstraintLayout>(R.id.mainmain)
         var type=itemView.findViewById<TextView>(R.id.type)
@@ -56,16 +61,26 @@ class SubAccountTransactionAdapter(
         var amount_after=itemView.findViewById<TextView>(R.id.amount_after)
         val date=itemView.findViewById<TextView>(R.id.date)
 
+        init {
+           itemView.setOnLongClickListener {
+               showmenu(itemView, popupadap)
+               return@setOnLongClickListener true
+           }
+
+        }
+
         @SuppressLint("ResourceAsColor")
-        fun bind(b: transactions, position: Int)
+        fun bind(b: transactions, position: Int, totalAmt: Double): Double
         {
             var act=""
+            var tot=totalAmt
             if(b.type=="D")
             {
                 main.setBackgroundColor(R.color.c2)
                 main.setBackgroundResource(R.color.c2)
                 type.text="Debited"
                 amount.text="Rs -"+b.amount.toString()
+                tot-=b.amount
             }
             else
                 if(b.type=="C")
@@ -74,17 +89,41 @@ class SubAccountTransactionAdapter(
                 main.setBackgroundResource(R.color.c5)
                 type.text="Credited"
                 amount.text="Rs +"+b.amount.toString()
+                tot+=b.amount
             }
             else if(b.type=="T")
                 {
                     main.setBackgroundColor(R.color.c7)
                     main.setBackgroundResource(R.color.c7)
                     type.text="Transfered"
-                    amount.text="Rs +"+b.amount.toString()
+                    amount.text="Rs -"+b.amount.toString()
+                    tot+=b.amount
                 }
             description.text=b.description
             date.text=b.date
-            amount_after.text=b.amountafter.toString()
+            amount_after.text=tot.toString()
+            return tot
         }
+
+        private fun showmenu(v:View, popupadap: popupOption)
+        {
+            var popup=PopupMenu(v.context, v)
+            popup.inflate(R.menu.transaction_long_click_options)
+            popup.setOnMenuItemClickListener {
+                if(it.itemId==R.id.delete)
+                {
+                    popupadap.delete(adapterPosition)
+                    return@setOnMenuItemClickListener true
+                }
+                return@setOnMenuItemClickListener false
+            }
+            popup.show()
+        }
+
     }
+
+    interface popupOption{
+        fun delete(position: Int)
+    }
+
 }

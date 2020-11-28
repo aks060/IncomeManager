@@ -17,9 +17,10 @@ import com.dynusroot.incomemanager.R
 import com.dynusroot.incomemanager.activities.Transactions_Type.CreditDebitTransaction
 import com.dynusroot.incomemanager.adapters.SubAccountTransactionAdapter
 import com.dynusroot.incomemanager.database.incomemanager_db
+import com.dynusroot.incomemanager.database.models.transactions
 import com.dynusroot.incomemanager.viewModels.TransactionsViewModel
 
-class Transactions : AppCompatActivity() {
+class Transactions : AppCompatActivity(), SubAccountTransactionAdapter.popupOption {
     private lateinit var viewModel:TransactionsViewModel
     private var accountid=""
     private var subaccountid=""
@@ -46,7 +47,7 @@ class Transactions : AppCompatActivity() {
 
         transactionlists=findViewById<RecyclerView>(R.id.recyclerView)
         viewModel.transactions.observe(this, Observer {
-            adapter= SubAccountTransactionAdapter(it, this)
+            adapter= SubAccountTransactionAdapter(it, this, this)
             initRecyclerView()
             viewModel.updateBalance()
         })
@@ -58,7 +59,6 @@ class Transactions : AppCompatActivity() {
             alert.setMessage("Do you want to delete this Subaccount?")
             alert.setPositiveButton("Yes") { dialogInterface: DialogInterface, i: Int ->
                 viewModel.deletesubaccount()
-                Toast.makeText(this, "Clicked Yes", Toast.LENGTH_LONG).show()
                 Log.e("Transaction", "Clicked")
                 onBackPressed()
             }
@@ -117,4 +117,12 @@ class Transactions : AppCompatActivity() {
         transactionlists.layoutManager = LinearLayoutManager(this)
         transactionlists.adapter=adapter
     }
+
+    override fun delete(position: Int) {
+        viewModel.deleteTransaction(viewModel.transactions.value?.get(position)!!.id, position)
+        adapter= SubAccountTransactionAdapter(viewModel.transactions.value as ArrayList<transactions>, this, this)
+        initRecyclerView()
+        viewModel.updateBalance()
+    }
+
 }

@@ -11,7 +11,6 @@ import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.database.models.subaccounts
 import com.dynusroot.incomemanager.viewModels.AddTransactionViewModel
 import java.util.*
-import kotlin.collections.ArrayList
 
 class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     private var subaccountid=-1L
@@ -35,10 +34,37 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         transactiontype=bundle!!.getString("transactiontype").toString()
         val db=incomemanager_db.get(application).dbDao
         viewModel= AddTransactionViewModel(db, application, subaccountid, this)
+        var options = ArrayList<String>()
+
 
         viewModel.getSubAccountList()
         viewModel.accountList.observe(this, androidx.lifecycle.Observer {
             subaccList=it
+            Log.e("CreditDebitOption Ob", it.toString())
+            options = ArrayList()
+            for (i in subaccList){
+                options.add(i.name)
+            }
+
+                spinner = findViewById(R.id.selectaccount)
+                Log.e("CreditDebit Options", options.toString())
+                spinner.adapter=ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        toBeTransferAcc=subaccList.get(position).id
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        Toast.makeText(this@CreditDebitTransaction, "Please Select Account to transfer", Toast.LENGTH_LONG).show()
+                        toBeTransferAcc=null
+                    }
+
+                }
         })
 
 
@@ -67,33 +93,33 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
             datePickerDialog.show()
         }
 
-        var options:ArrayList<String> = ArrayList()
-        for (i in subaccList){
-            options.add(i.name)
-        }
+//        for (i in subaccList){
+//            options.add(i.name)
+//        }
 
 
 
-        if(transactiontype=="T") {
-            spinner = findViewById(R.id.selectaccount)
-            spinner.adapter=ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
-            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    toBeTransferAcc=subaccList.get(position).id
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    Toast.makeText(this@CreditDebitTransaction, "Please Select Account to transfer", Toast.LENGTH_LONG).show()
-                    toBeTransferAcc=null
-                }
-
-            }
-        }
+//        if(transactiontype=="T") {
+//            spinner = findViewById(R.id.selectaccount)
+//            Log.e("CreditDebit Options", options.toString())
+//            spinner.adapter=ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
+//            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(
+//                    parent: AdapterView<*>?,
+//                    view: View?,
+//                    position: Int,
+//                    id: Long
+//                ) {
+//                    toBeTransferAcc=subaccList.get(position).id
+//                }
+//
+//                override fun onNothingSelected(parent: AdapterView<*>?) {
+//                    Toast.makeText(this@CreditDebitTransaction, "Please Select Account to transfer", Toast.LENGTH_LONG).show()
+//                    toBeTransferAcc=null
+//                }
+//
+//            }
+//        }
 
         var submit=findViewById<Button>(R.id.add)
         submit.setOnClickListener {
@@ -151,6 +177,14 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         year = year1
         month = month1
         date.setText(day.toString()+"/"+(month+1)+"/"+year)
-        orderByDate=year.toString()+"/"+(month+1)+"/"+day
+        orderByDate=year.toString()+"/"
+        if(month<9)
+            orderByDate+="0"+(month+1)+"/"
+        else
+            orderByDate+=(month+1).toString()+"/"
+        if(day<10)
+            orderByDate+="0"+(day)
+        else
+            orderByDate+=day
     }
 }

@@ -86,4 +86,15 @@ class TransactionsViewModel(val db: db_dao,
             transactions.postValue(db.getAllTransactions(subaccountid) as ArrayList<transactions>)
         }
     }
+
+    fun deleteTransaction(id: Long, pos:Int)
+    {
+        uiScope.launch {
+            withContext(Dispatchers.IO){
+                db.deleteTransaction(id)
+            }
+        }
+        transactions.value?.removeAt(pos)
+        Log.e("TransactionViewModel", transactions.value.toString())
+    }
 }
