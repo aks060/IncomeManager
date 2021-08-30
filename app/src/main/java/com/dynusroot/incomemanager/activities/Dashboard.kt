@@ -15,6 +15,7 @@ import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.database.models.accounts
 import com.dynusroot.incomemanager.viewModels.DashboardViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.w3c.dom.Text
 import java.util.jar.Manifest
 
 class Dashboard : AppCompatActivity() {
@@ -64,6 +65,12 @@ class Dashboard : AppCompatActivity() {
         var addnew=findViewById<FloatingActionButton>(R.id.addnewaccount)
         addnew.setOnClickListener {
             startActivity(Intent(this, AddAccount::class.java))
+        }
+
+        //backup
+        var backup=findViewById<TextView>(R.id.backup)
+        backup.setOnClickListener {
+
         }
 
     }

@@ -47,7 +47,7 @@ class SubAccountsAdapter(var context: Context, var data:ArrayList<subaccounts>):
         var acc_id=view.findViewById<TextView>(R.id.accountid)
         acc_name.text=data.get(position).name
         acc_id.text=data.get(position).id.toString()
-        balance.text="Total: Rs Sub "+data.get(position).balance.toString()
+        balance.text="Total: Rs Sub "+"%.2f".format(data.get(position).balance)
 
         return view
     }
