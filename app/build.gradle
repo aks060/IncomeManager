@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -11,7 +12,7 @@ android {
     defaultConfig {
         applicationId "com.dynusroot.incomemanager"
         minSdkVersion 22
-        targetSdkVersion 30
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0.2"
 
@@ -57,4 +58,9 @@ dependencies {
 
     implementation 'androidx.recyclerview:recyclerview-selection:1.0.0'
 
+    //WorkManager
+    implementation "androidx.work:work-runtime-ktx:2.5.0"
+
+    //Serialization
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:1.0-M1-1.4.0-rc"
 }
