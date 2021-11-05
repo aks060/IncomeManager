@@ -5,6 +5,9 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -60,34 +63,6 @@ class Dashboard : AppCompatActivity() {
             intent.putExtras(bundle)
             startActivity(intent)
         }
-//        gridView.setOnClickListener {
-//            var name=it.findViewById<TextView>(R.id.account_name).text.toString()
-//            bundle.putString("account", name)
-//            intent.putExtras(bundle)
-//            startActivity(intent)
-//        }
-
-
-        var addnew=findViewById<FloatingActionButton>(R.id.addnewaccount)
-        addnew.setOnClickListener {
-            startActivity(Intent(this, AddAccount::class.java))
-        }
-
-        //backup
-        var backup=findViewById<FloatingActionButton>(R.id.backup)
-        backup.setOnClickListener {
-            checkPermission(
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                STORAGE_PERMISSION_CODE, true)
-        }
-
-        //restore
-        var restore=findViewById<FloatingActionButton>(R.id.restore)
-        restore.setOnClickListener {
-            checkPermission(
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                STORAGE_PERMISSION_CODE)
-        }
 
     }
 
@@ -99,6 +74,31 @@ class Dashboard : AppCompatActivity() {
             adapter= AccountsAdapter(this, accounts)
             gridView.adapter=adapter
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        var inflater = MenuInflater(this)
+        inflater.inflate(R.menu.dashboard_menu, menu)
+        return true;
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId==R.id.createAccount){
+            startActivity(Intent(this, AddAccount::class.java))
+        }
+        else if (item.itemId==R.id.backup){
+            //Backup
+            checkPermission(
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                STORAGE_PERMISSION_CODE, true)
+        }
+        else if(item.itemId==R.id.restore){
+            //Restore
+            checkPermission(
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                STORAGE_PERMISSION_CODE)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun checkPermission(permission: String, requestCode: Int, isbackup: Boolean =false) {
