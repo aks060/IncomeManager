@@ -2,12 +2,14 @@ package com.dynusroot.incomemanager.database.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 @Entity
-data class accounts(
+@Serializable
+data class accounts (
         @PrimaryKey(autoGenerate = true)
         var id:Long,
         var name:String,

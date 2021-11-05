@@ -27,9 +27,6 @@ interface db_dao {
     @Insert
     fun addacount(account: accounts)
 
-    @Query("SELECT * FROM accounts")
-    fun getaccounts():List<accounts>
-
     @Query("DELETE FROM accounts WHERE id=:id")
     fun deleteaccount(id:Long)
 
@@ -83,4 +80,15 @@ interface db_dao {
 
     @Update
     fun updateTransaction(tr: transactions)
+
+    // Backup Functions
+
+    @Query("SELECT * FROM accounts")
+    fun getaccounts():List<accounts>
+
+    @Query("SELECT * FROM subaccounts")
+    fun getsubaccounts(): List<subaccounts>
+
+    @Query("SELECT * FROM transactions")
+    fun gettransactions(): List<transactions>
 }

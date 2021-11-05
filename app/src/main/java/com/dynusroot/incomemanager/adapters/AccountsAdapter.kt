@@ -49,7 +49,7 @@ class AccountsAdapter(var context:Context, var data:ArrayList<accounts>): BaseAd
         var acc_id=view.findViewById<TextView>(R.id.accountid)
         acc_name.text=data.get(position).name
         acc_id.text=data.get(position).id.toString()
-        balance.text="Total: Rs "+data.get(position).totalBalance.toString()
+        balance.text="Total: Rs "+"%.2f".format(data.get(position).totalBalance)
 
         return view
     }

@@ -11,6 +11,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StableIdKeyProvider
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dynusroot.incomemanager.R
@@ -28,6 +32,7 @@ class Transactions : AppCompatActivity(), SubAccountTransactionAdapter.popupOpti
     private var accountname=""
     private var subaccountname=""
     private lateinit var adapter:SubAccountTransactionAdapter
+    private var tracker: SelectionTracker<Long>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("Transactions", "OnCreate")
@@ -116,6 +121,18 @@ class Transactions : AppCompatActivity(), SubAccountTransactionAdapter.popupOpti
     fun initRecyclerView(){
         transactionlists.layoutManager = LinearLayoutManager(this)
         transactionlists.adapter=adapter
+
+//        tracker = SelectionTracker.Builder<Long>(
+//            "selection-1",
+//            transactionlists,
+//            StableIdKeyProvider(transactionlists),
+//            MyLookup(my_rv),
+//            StorageStrategy.createLongStorage()
+//        ).withSelectionPredicate(
+//            SelectionPredicates.createSelectAnything()
+//        ).build()
+
+//        tracker=SelectionTracker.Builder<Long>()
     }
 
     override fun delete(position: Int) {

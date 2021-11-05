@@ -21,7 +21,7 @@ class SubAccountTransactionAdapter(
     private var popup: popupOption
 ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     lateinit var data: ArrayList<transactions>
-    var totalAmt:Double=0.0
+    var totalAmt=ArrayList<Double>()
 
     init {
         data= ArrayList()
@@ -43,7 +43,18 @@ class SubAccountTransactionAdapter(
         when(holder)
         {
             is viewholder -> {
-                totalAmt=holder.bind(data.get(position), position, totalAmt)
+                var amt=0.0
+                try {
+                    if(position>0)
+                        amt=totalAmt[position-1]
+                    totalAmt[position]=holder.bind(data.get(position), position, amt)
+                }
+                catch (t: Throwable)
+                {
+                    if(position>0)
+                        amt=totalAmt[position-1]
+                    totalAmt.add(holder.bind(data.get(position), position, amt))
+                }
             }
         }
     }
@@ -97,11 +108,11 @@ class SubAccountTransactionAdapter(
                     main.setBackgroundResource(R.color.c7)
                     type.text="Transfered"
                     amount.text="Rs -"+b.amount.toString()
-                    tot+=b.amount
+                    tot-=b.amount
                 }
             description.text=b.description
             date.text=b.date
-            amount_after.text=tot.toString()
+            amount_after.text="%.2f".format(tot)
             return tot
         }
 
