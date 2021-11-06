@@ -11,10 +11,12 @@ import androidx.core.net.toUri
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.dynusroot.incomemanager.backupclass.accountsBackup
+import com.dynusroot.incomemanager.backupclass.schedulesBackup
 import com.dynusroot.incomemanager.backupclass.subaccountsBackup
 import com.dynusroot.incomemanager.backupclass.transactionsBackup
 import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.database.models.accounts
+import com.dynusroot.incomemanager.database.models.schedules
 import com.dynusroot.incomemanager.database.models.subaccounts
 import com.dynusroot.incomemanager.database.models.transactions
 import java.io.*
@@ -55,6 +57,13 @@ class Restore (var context: Context, workerParams: WorkerParameters) : Worker(
                 var ia = i as transactionsBackup
                 db.addTransaction(transactions(ia.id, ia.type, ia.subaccountID, ia.amount, ia.description, ia.amountafter, ia.transferto, ia.orderBydate, ia.date))
             }
+
+            var schedules = obj[3]
+            for(i in schedules){
+                var ia = i as schedulesBackup
+                db.scheduleTransaction(schedules(ia.id, ia.account, ia.desc, ia.amount, ia.interval, ia.txntype, ia.transferto, ia.specificTime))
+            }
+
             Log.e("Restore-Any", accounts.toString())
             os.close()
             fos.close()

@@ -15,6 +15,7 @@ import com.dynusroot.incomemanager.backupclass.subaccountsBackup
 import com.dynusroot.incomemanager.backupclass.transactionsBackup
 import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.database.models.accounts
+import com.dynusroot.incomemanager.database.models.schedules
 import com.dynusroot.incomemanager.database.models.subaccounts
 import java.io.File
 import java.io.FileOutputStream
@@ -63,7 +64,14 @@ class Backup (var context: Context, workerParams: WorkerParameters) : Worker(
                 i.orderBydate,
                 i.date))
             }
-            var obj = arrayListOf(accounts, subaccounts, transactions)
+
+            var temp3= db.getschedules()
+            var schedules = ArrayList<schedules>()
+            for (i in temp3){
+                schedules.add(schedules(i.id, i.account, i.desc, i.amount, i.interval, i.txntype, i.transferto, i.specificTime))
+            }
+
+            var obj = arrayListOf(accounts, subaccounts, transactions, schedules)
             os.writeObject(obj)
             os.close()
             fos.close()

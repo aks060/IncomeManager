@@ -3,17 +3,15 @@ package com.dynusroot.incomemanager.activities
 import androidx.appcompat.app.AppCompatActivity
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
+import androidx.annotation.RequiresApi
 import com.dynusroot.incomemanager.R
 import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.viewModels.Splash_ScreenViewModel
-import java.util.*
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -60,6 +58,7 @@ class Splash_Screen : AppCompatActivity() {
         false
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,10 +70,6 @@ class Splash_Screen : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isFullscreen = true
 
-//        viewModel.loggedin.observe(this, androidx.lifecycle.Observer {
-//            login=it
-//            delayedHide(100)
-//        })
 
         delayedHide(1000)
 

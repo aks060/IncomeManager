@@ -1,10 +1,7 @@
 package com.dynusroot.incomemanager.database
 
 import androidx.room.*
-import com.dynusroot.incomemanager.database.models.accounts
-import com.dynusroot.incomemanager.database.models.subaccounts
-import com.dynusroot.incomemanager.database.models.transactions
-import com.dynusroot.incomemanager.database.models.userDBModel
+import com.dynusroot.incomemanager.database.models.*
 
 @Dao
 interface db_dao {
@@ -91,4 +88,15 @@ interface db_dao {
 
     @Query("SELECT * FROM transactions")
     fun gettransactions(): List<transactions>
+
+
+    // Schedule Functions
+    @Insert
+    fun scheduleTransaction(sctxn: schedules): Long
+    @Delete
+    fun deleteschedule(sctxn: schedules)
+    @Update
+    fun updateschedule(sctxn: schedules)
+    @Query("SELECT * FROM schedules")
+    fun getschedules(): List<schedules>
 }

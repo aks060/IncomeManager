@@ -20,8 +20,10 @@ import com.dynusroot.incomemanager.database.models.accounts
 import com.dynusroot.incomemanager.viewModels.DashboardViewModel
 import com.dynusroot.incomemanager.worker.Backup
 import com.dynusroot.incomemanager.worker.Restore
+import com.dynusroot.incomemanager.worker.ScheduleTransactionWork
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.w3c.dom.Text
+import java.util.concurrent.TimeUnit
 import java.util.jar.Manifest
 
 class Dashboard : AppCompatActivity() {
@@ -98,6 +100,10 @@ class Dashboard : AppCompatActivity() {
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 STORAGE_PERMISSION_CODE)
         }
+        else if(item.itemId==R.id.run_scheduler){
+            //Scheduler
+            startScheduler()
+        }
         return super.onOptionsItemSelected(item)
     }
 
@@ -129,6 +135,29 @@ class Dashboard : AppCompatActivity() {
                 Toast.makeText(this, "Storage Permission Required for Backup", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun startScheduler(){
+        var workmanager = WorkManager.getInstance(this)
+
+        var constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .build()
+
+        workmanager.cancelAllWorkByTag("Scheduler")
+
+        var workReq = PeriodicWorkRequest.Builder(ScheduleTransactionWork:: class.java, 1, TimeUnit.DAYS)
+            .setConstraints(constraints)
+            .addTag("Scheduler")
+            .build()
+
+        workmanager.enqueue(workReq)
+        Log.e("Scheduler", "Work enqued")
+        workmanager.getWorkInfoByIdLiveData(workReq.id).observe(this, Observer {
+            Log.e("Scheduler", it.state.name)
+        })
+        Log.e("Scheduler", workmanager.getWorkInfoById(workReq.id).get().state.toString())
+        Toast.makeText(this, "Scheduler Started", Toast.LENGTH_LONG).show()
     }
 
     private fun startBackup(){

@@ -1,5 +1,6 @@
 package com.dynusroot.incomemanager.backupclass
 
+import androidx.room.PrimaryKey
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
@@ -66,5 +67,36 @@ class transactionsBackup: Serializable {
         this.transferto=transferto
         this.orderBydate=orderBydate
         this.date=date
+    }
+}
+
+class schedulesBackup: Serializable {
+    var id: Long = 0
+    var account: Long =0
+    var desc: String =""
+    var amount: Double=0.0
+    var interval: String=""
+    var txntype: String=""
+    var transferto: Long = 0
+    var specificTime: String? = null
+
+    constructor(
+        id: Long = 0,
+        account: Long =0,
+        desc: String ="",
+        amount: Double=0.0,
+        interval: String="",
+        txntype: String="",
+        transferto: Long = 0,
+        specificTime: String? = null
+    ){
+        this.id=id
+        this.account=account
+        this.desc=desc
+        this.amount=amount
+        this.interval=interval
+        this.txntype=txntype
+        this.transferto=transferto
+        this.specificTime=specificTime
     }
 }
