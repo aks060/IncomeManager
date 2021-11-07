@@ -579,21 +579,25 @@ class transactionsBackup: Serializable {
 class schedulesBackup: Serializable {
     var id: Long = 0
     var account: Long =0
+    var accountName: String? = null
     var desc: String =""
     var amount: Double=0.0
     var interval: String=""
     var txntype: String=""
     var transferto: Long = 0
+    var transfertoName: String?=null
     var specificTime: String? = null
 
     constructor(
         id: Long = 0,
         account: Long =0,
+        accountName: String?=null,
         desc: String ="",
         amount: Double=0.0,
         interval: String="",
         txntype: String="",
         transferto: Long = 0,
+        transfertoName: String?=null,
         specificTime: String? = null
     ){
         this.id=id

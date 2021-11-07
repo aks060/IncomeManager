@@ -12,6 +12,9 @@
         android:roundIcon="@drawable/logo_foreground"
         android:supportsRtl="true"
         android:theme="@style/Theme.IncomeManager">
+        <activity
+            android:name=".activities.ScheduledTransactions"
+            android:exported="false" />
         <activity android:name=".activities.Transactions_Type.CreditDebitTransaction" />
         <activity android:name=".activities.Transactions" />
         <activity android:name=".activities.AddSubAccount" />

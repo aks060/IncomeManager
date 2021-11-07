@@ -514,10 +514,12 @@ data class schedules(
     @PrimaryKey(autoGenerate = true)
     var id: Long=0,
     var account: Long,
+    var accountName: String?,
     var desc: String,
     var amount: Double,
     var interval: String,
     var txntype: String,
     var transferto: Long=0,
+    var transfertoName: String?=null,
     var specificTime: String?=null
 )

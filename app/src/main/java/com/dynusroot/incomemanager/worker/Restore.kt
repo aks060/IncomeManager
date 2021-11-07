@@ -567,7 +567,7 @@ class Restore (var context: Context, workerParams: WorkerParameters) : Worker(
             var schedules = obj[3]
             for(i in schedules){
                 var ia = i as schedulesBackup
-                db.scheduleTransaction(schedules(ia.id, ia.account, ia.desc, ia.amount, ia.interval, ia.txntype, ia.transferto, ia.specificTime))
+                db.scheduleTransaction(schedules(ia.id, ia.account, ia.accountName, ia.desc, ia.amount, ia.interval, ia.txntype, ia.transferto, ia.transfertoName, ia.specificTime))
             }
 
             Log.e("Restore-Any", accounts.toString())

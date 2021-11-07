@@ -13,4 +13,7 @@
     <item android:id="@+id/run_scheduler"
         android:title="Run Scheduler"
         app:showAsAction="never"/>
+    <item android:id="@+id/schedulers"
+        android:title="Scheduled Transactions"
+        app:showAsAction="never"/>
 </menu>

@@ -512,7 +512,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.dynusroot.incomemanager.database.models.*
 
-@Database(version = 1, entities = [userDBModel::class, accounts::class, subaccounts::class, transactions::class, schedules::class])
+@Database(version = 2, entities = [userDBModel::class, accounts::class, subaccounts::class, transactions::class, schedules::class])
 abstract class incomemanager_db: RoomDatabase() {
     abstract val dbDao: db_dao
 

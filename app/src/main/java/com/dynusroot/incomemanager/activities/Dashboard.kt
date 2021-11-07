@@ -610,6 +610,10 @@ class Dashboard : AppCompatActivity() {
             //Scheduler
             startScheduler()
         }
+        else if(item.itemId==R.id.schedulers){
+            var intent=Intent(this, ScheduledTransactions::class.java)
+            startActivity(intent)
+        }
         return super.onOptionsItemSelected(item)
     }
 

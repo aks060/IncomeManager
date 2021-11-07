@@ -605,4 +605,6 @@ interface db_dao {
     fun updateschedule(sctxn: schedules)
     @Query("SELECT * FROM schedules")
     fun getschedules(): List<schedules>
+    @Query("DELETE FROM schedules WHERE id=:id")
+    fun deletescheduleById(id: Long)
 }

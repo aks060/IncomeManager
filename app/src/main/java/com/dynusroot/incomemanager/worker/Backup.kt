@@ -517,6 +517,7 @@ import androidx.core.net.toUri
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.dynusroot.incomemanager.backupclass.accountsBackup
+import com.dynusroot.incomemanager.backupclass.schedulesBackup
 import com.dynusroot.incomemanager.backupclass.subaccountsBackup
 import com.dynusroot.incomemanager.backupclass.transactionsBackup
 import com.dynusroot.incomemanager.database.incomemanager_db
@@ -572,9 +573,9 @@ class Backup (var context: Context, workerParams: WorkerParameters) : Worker(
             }
 
             var temp3= db.getschedules()
-            var schedules = ArrayList<schedules>()
+            var schedules = ArrayList<schedulesBackup>()
             for (i in temp3){
-                schedules.add(schedules(i.id, i.account, i.desc, i.amount, i.interval, i.txntype, i.transferto, i.specificTime))
+                schedules.add(schedulesBackup(i.id, i.account, i.accountName, i.desc, i.amount, i.interval, i.txntype, i.transferto, i.transfertoName, i.specificTime))
             }
 
             var obj = arrayListOf(accounts, subaccounts, transactions, schedules)

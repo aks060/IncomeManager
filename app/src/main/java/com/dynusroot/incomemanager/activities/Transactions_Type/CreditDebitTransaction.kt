@@ -743,6 +743,12 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
             var amount = findViewById<EditText>(R.id.amount).text.toString().toDouble()
             var desc = findViewById<EditText>(R.id.description).text.toString()
 //            var date = findViewById<EditText>(R.id.date).text.toString()
+            if(scheduleType=="M"){
+                scheduleTiming=findViewById<EditText>(R.id.month_date).text.toString()
+            }
+            else if(scheduleType=="Y"){
+                scheduleTiming=date.text.toString()
+            }
 
             var datetext=date.text.toString()
             if (amount > 0 && desc != "" && datetext!="") {
