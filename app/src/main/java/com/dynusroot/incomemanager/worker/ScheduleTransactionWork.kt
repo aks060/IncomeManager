@@ -1,9 +1,13 @@
 package com.dynusroot.incomemanager.worker
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.dynusroot.incomemanager.R
@@ -70,6 +74,14 @@ class ScheduleTransactionWork (var context: Context, workerParams: WorkerParamet
                 }
             }
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("IncomeManager", "IncomeManager Scheduler", NotificationManager.IMPORTANCE_HIGH)
+            channel.description="Scheduled Transactions notifications"
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+
         var builder = NotificationCompat.Builder(context, "IncomeManager")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Scheduled Transaction")
