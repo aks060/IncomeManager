@@ -51,6 +51,29 @@
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:paddingHorizontal="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Schedule" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/schedule_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:weightSum="5"
             android:layout_marginVertical="5dp"
@@ -77,9 +100,35 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/select_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone"
+            android:weightSum="5">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Schedule" />
+
+            <Spinner
+                android:id="@+id/schedule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:weightSum="5"
+            android:id="@+id/date_layout"
+            android:visibility="visible"
             android:layout_marginVertical="5dp"
             android:paddingHorizontal="20dp"
             android:orientation="horizontal">
@@ -103,10 +152,63 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/schedule_monthly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone"
+            android:weightSum="5">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Month Date" />
+
+            <EditText
+                android:id="@+id/month_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:minEms="1"
+                android:maxEms="2"
+                android:ems="2"
+                android:inputType="numberSigned" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/weekly_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone"
+            android:weightSum="5">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Week Day" />
+
+            <Spinner
+                android:id="@+id/week_option"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/select_accountwala"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:weightSum="5"
             android:layout_marginVertical="5dp"
             android:paddingHorizontal="20dp"

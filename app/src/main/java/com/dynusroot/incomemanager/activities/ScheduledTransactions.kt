@@ -1,4 +1,4 @@
-package com.dynusroot.incomemanager.viewModels
+package com.dynusroot.incomemanager.activities
 /*
                   GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
@@ -506,221 +506,85 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
-import android.app.Application
-import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
-import com.dynusroot.incomemanager.database.db_dao
-import com.dynusroot.incomemanager.database.models.accounts
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StableIdKeyProvider
+import androidx.recyclerview.selection.StorageStrategy
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.dynusroot.incomemanager.R
+import com.dynusroot.incomemanager.activities.Transactions_Type.CreditDebitTransaction
+import com.dynusroot.incomemanager.adapters.SchedulerAdapter
+import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.database.models.schedules
-import com.dynusroot.incomemanager.database.models.subaccounts
 import com.dynusroot.incomemanager.database.models.transactions
-import kotlinx.coroutines.*
+import com.dynusroot.incomemanager.viewModels.SchedulerViewModel
+import com.dynusroot.incomemanager.viewModels.TransactionsViewModel
 
-class AddTransactionViewModel(val db: db_dao,
-                              application: Application,
-                              val subaccountid:Long,
-                              val context: Context
-) : AndroidViewModel(application) {
-    private val job= Job()
-    lateinit var toastmssg: MutableLiveData<String>
-    lateinit var totalamount: MutableLiveData<Double>
-    lateinit var accountList: MutableLiveData<ArrayList<subaccounts>>
-    private lateinit var subaccount: subaccounts
-    private val uiScope= CoroutineScope(Dispatchers.Main+job)
+class ScheduledTransactions : AppCompatActivity(), SchedulerAdapter.popupOption {
+    private lateinit var viewModel:SchedulerViewModel
+    private lateinit var schedulerlist: RecyclerView
+    private lateinit var adapter:SchedulerAdapter
+    private var tracker: SelectionTracker<Long>? = null
 
-    init {
-        toastmssg= MutableLiveData()
-        totalamount= MutableLiveData(0.0)
-        accountList= MutableLiveData(ArrayList())
-        getSubAccountList()
-        uiScope.launch {
-            total()
-        }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_scheduled_transactions)
+//        var bundle=intent.extras
+//        accountid= bundle?.getString("accountid").toString()
+//        accountname=bundle?.getString("accountname").toString()
+//        subaccountname=bundle?.getString("subaccountname").toString()
+//        subaccountid=bundle?.getString("subaccountid").toString()
+
+
+        val db=incomemanager_db.get(application).dbDao
+        viewModel=SchedulerViewModel(db, application)
+
+        schedulerlist=findViewById<RecyclerView>(R.id.recyclerView)
+        viewModel.schedules.observe(this, Observer {
+            adapter= SchedulerAdapter(it, this, this)
+            initRecyclerView()
+        })
     }
 
-    fun getSubAccountList()
-    {
-        uiScope.launch {
-            withContext(Dispatchers.IO){
-                accountList.postValue(db.getSubAccountExcept(subaccountid) as ArrayList)
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        viewModel.refresh()
+        Log.e("Transactions", "OnResume")
     }
 
-    fun creditmoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, orderByDate:String, interval:String?=null, timing:String?=null)
-    {
-        if(isschedule){
-            var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
-                txntype="C",
-                specificTime=timing!!,
-                accountName = subaccount.name
-                )
-            uiScope.launch {
-                withContext(Dispatchers.IO){
-                    try{
-                        db.scheduleTransaction(sch)
-                    }
-                    catch (t: Throwable){
-                        toastmssg.value=t.message.toString()
-                    }
-                }
-            }
-        }
-        else {
-            var trans = transactions(
-                type = "C",
-                orderBydate = orderByDate,
-                subaccountID = subaccountid.toLong(),
-                amount = amount,
-                date = date,
-                description = desc,
-                amountafter = (totalamount.value?.plus(amount))
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
-                    try {
-                        db.addTransaction(trans)
-                        total()
-                    } catch (t: Throwable) {
-                        toastmssg.value = t.message.toString()
-                    }
-                }
-            }
-        }
+    fun initRecyclerView(){
+        schedulerlist.layoutManager = LinearLayoutManager(this)
+        schedulerlist.adapter=adapter
+
+//        tracker = SelectionTracker.Builder<Long>(
+//            "selection-1",
+//            transactionlists,
+//            StableIdKeyProvider(transactionlists),
+//            MyLookup(my_rv),
+//            StorageStrategy.createLongStorage()
+//        ).withSelectionPredicate(
+//            SelectionPredicates.createSelectAnything()
+//        ).build()
+
+//        tracker=SelectionTracker.Builder<Long>()
     }
 
-    fun debitmoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, orderByDate: String, interval: String?=null, timing: String?=null)
-    {
-        if(isschedule){
-            var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
-                txntype="D",
-                specificTime=timing!!,
-                accountName = subaccount.name
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO){
-                    try{
-                        db.scheduleTransaction(sch)
-                    }
-                    catch (t: Throwable){
-                        toastmssg.value=t.message.toString()
-                    }
-                }
-            }
-        }
-        else {
-            var trans = transactions(
-                type = "D",
-                orderBydate = orderByDate,
-                subaccountID = subaccountid.toLong(),
-                amount = amount,
-                date = date,
-                description = desc,
-                amountafter = (totalamount.value?.minus(amount))
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
-                    try {
-                        db.addTransaction(trans)
-                        total()
-                    } catch (t: Throwable) {
-                        toastmssg.value = t.message.toString()
-                    }
-                }
-            }
-        }
+    override fun delete(position: Int) {
+        viewModel.deleteSchedule(viewModel.schedules.value?.get(position)!!.id, position)
+        adapter= SchedulerAdapter(viewModel.schedules.value as ArrayList<schedules>, this, this)
+        initRecyclerView()
     }
 
-    fun transfermoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, transferto:Long, orderByDate: String, interval: String?=null, timing: String?=null)
-    {
-        var transferedto: subaccounts?=null
-        uiScope.launch {
-            withContext(Dispatchers.IO){
-                transferedto=db.getSubAccountID(transferto)
-            }
-        }
-
-        if(isschedule){
-            uiScope.launch {
-                withContext(Dispatchers.IO){
-                    try{
-                        var trans=db.getSubAccountID(transferto)
-                        var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
-                            txntype="T",
-                            transferto=transferto,
-                            specificTime=timing!!,
-                            accountName = subaccount.name,
-                            transfertoName = trans.name
-                        )
-                        db.scheduleTransaction(sch)
-                    }
-                    catch (t: Throwable){
-                        toastmssg.value=t.message.toString()
-                    }
-                }
-            }
-        }
-        else {
-
-            var transto = transactions(
-                type = "C",
-                orderBydate = orderByDate,
-                subaccountID = transferto,
-                amount = amount,
-                date = date,
-                description = desc + " From " + subaccount.name,
-                amountafter = (totalamount.value?.minus(amount)),
-                transferto = transferto
-            )
-
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
-                    try {
-                        transferedto = db.getSubAccountID(transferto)
-                        var trans = transactions(
-                            type = "T",
-                            orderBydate = orderByDate,
-                            subaccountID = subaccountid.toLong(),
-                            amount = amount,
-                            date = date,
-                            description = desc + " To " + transferedto?.name,
-                            amountafter = (totalamount.value?.minus(amount)),
-                            transferto = transferto
-                        )
-                        db.addTransaction(trans)
-                        db.addTransaction(transto)
-                        total()
-                    } catch (t: Throwable) {
-                        toastmssg.value = t.message.toString()
-                    }
-                }
-            }
-        }
-    }
-
-    fun refresh()
-    {
-        uiScope.launch {
-            total()
-            getSubAccountList()
-        }
-    }
-
-    private suspend fun total()
-    {
-        withContext(Dispatchers.IO){
-            totalamount.postValue(db.getTotalCredit(subaccountid.toLong())-db.getTotalDebit(subaccountid.toLong())-db.getTotalTransferred(subaccountid.toLong()))
-            subaccount=db.getSubAccountID(subaccountid.toLong())
-            subaccount.balance= totalamount.value!!
-            db.updateSubAccount(subaccount)
-            Log.e("AddTransactionViewModel", "Updated DB")
-            Log.e("AddTransactionViewModel", subaccount.toString())
-            Log.e("AddTransactionViewModel", totalamount.toString())
-
-        }
-    }
 }
-

@@ -1,4 +1,4 @@
-package com.dynusroot.incomemanager.viewModels
+package com.dynusroot.incomemanager.worker
 /*
                   GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
@@ -507,220 +507,97 @@ That's all there is to it!
 
  */
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import com.dynusroot.incomemanager.database.db_dao
-import com.dynusroot.incomemanager.database.models.accounts
-import com.dynusroot.incomemanager.database.models.schedules
-import com.dynusroot.incomemanager.database.models.subaccounts
-import com.dynusroot.incomemanager.database.models.transactions
-import kotlinx.coroutines.*
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import com.dynusroot.incomemanager.R
+import com.dynusroot.incomemanager.database.incomemanager_db
+import com.dynusroot.incomemanager.viewModels.AddTransactionViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
-class AddTransactionViewModel(val db: db_dao,
-                              application: Application,
-                              val subaccountid:Long,
-                              val context: Context
-) : AndroidViewModel(application) {
-    private val job= Job()
-    lateinit var toastmssg: MutableLiveData<String>
-    lateinit var totalamount: MutableLiveData<Double>
-    lateinit var accountList: MutableLiveData<ArrayList<subaccounts>>
-    private lateinit var subaccount: subaccounts
-    private val uiScope= CoroutineScope(Dispatchers.Main+job)
+class ScheduleTransactionWork (var context: Context, workerParams: WorkerParameters) : Worker(
+    context,
+    workerParams
+) {
+    override fun doWork(): Result {
+        val db = incomemanager_db.get(context as Application).dbDao
+        var application = context as Application
 
-    init {
-        toastmssg= MutableLiveData()
-        totalamount= MutableLiveData(0.0)
-        accountList= MutableLiveData(ArrayList())
-        getSubAccountList()
-        uiScope.launch {
-            total()
-        }
-    }
+        var getList = db.getschedules()
 
-    fun getSubAccountList()
-    {
-        uiScope.launch {
-            withContext(Dispatchers.IO){
-                accountList.postValue(db.getSubAccountExcept(subaccountid) as ArrayList)
-            }
-        }
-    }
-
-    fun creditmoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, orderByDate:String, interval:String?=null, timing:String?=null)
-    {
-        if(isschedule){
-            var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
-                txntype="C",
-                specificTime=timing!!,
-                accountName = subaccount.name
-                )
-            uiScope.launch {
-                withContext(Dispatchers.IO){
-                    try{
-                        db.scheduleTransaction(sch)
-                    }
-                    catch (t: Throwable){
-                        toastmssg.value=t.message.toString()
+        if (!getList.isEmpty()) {
+            for (i in getList) {
+                val simpleDateFormat = SimpleDateFormat("EEE")
+                val weekday: String = simpleDateFormat.format(Date())
+                val monthdate = SimpleDateFormat("d").format(Date()).toLong()
+                val month = SimpleDateFormat("M").format(Date()).toLong()
+                var orderbyDate = SimpleDateFormat("yyyy/MM/dd").format(Date())
+                var yearly = false
+                if (i.interval == "Y") {
+                    val date = SimpleDateFormat("d/M/yyyy").parse(i.specificTime)
+                    if (monthdate == SimpleDateFormat("d").format(date)
+                            .toLong() && month == SimpleDateFormat("M").format(date)
+                            .toLong()
+                    ) {
+                        yearly = true
                     }
                 }
-            }
-        }
-        else {
-            var trans = transactions(
-                type = "C",
-                orderBydate = orderByDate,
-                subaccountID = subaccountid.toLong(),
-                amount = amount,
-                date = date,
-                description = desc,
-                amountafter = (totalamount.value?.plus(amount))
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
-                    try {
-                        db.addTransaction(trans)
-                        total()
-                    } catch (t: Throwable) {
-                        toastmssg.value = t.message.toString()
-                    }
-                }
-            }
-        }
-    }
-
-    fun debitmoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, orderByDate: String, interval: String?=null, timing: String?=null)
-    {
-        if(isschedule){
-            var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
-                txntype="D",
-                specificTime=timing!!,
-                accountName = subaccount.name
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO){
-                    try{
-                        db.scheduleTransaction(sch)
-                    }
-                    catch (t: Throwable){
-                        toastmssg.value=t.message.toString()
-                    }
-                }
-            }
-        }
-        else {
-            var trans = transactions(
-                type = "D",
-                orderBydate = orderByDate,
-                subaccountID = subaccountid.toLong(),
-                amount = amount,
-                date = date,
-                description = desc,
-                amountafter = (totalamount.value?.minus(amount))
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
-                    try {
-                        db.addTransaction(trans)
-                        total()
-                    } catch (t: Throwable) {
-                        toastmssg.value = t.message.toString()
-                    }
-                }
-            }
-        }
-    }
-
-    fun transfermoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, transferto:Long, orderByDate: String, interval: String?=null, timing: String?=null)
-    {
-        var transferedto: subaccounts?=null
-        uiScope.launch {
-            withContext(Dispatchers.IO){
-                transferedto=db.getSubAccountID(transferto)
-            }
-        }
-
-        if(isschedule){
-            uiScope.launch {
-                withContext(Dispatchers.IO){
-                    try{
-                        var trans=db.getSubAccountID(transferto)
-                        var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
-                            txntype="T",
-                            transferto=transferto,
-                            specificTime=timing!!,
-                            accountName = subaccount.name,
-                            transfertoName = trans.name
+                if (i.interval == "D" || (i.interval == "W" && weekday == i.specificTime) || (i.interval == "M" && monthdate == i.specificTime!!.toLong()) || yearly) {
+                    var viewModel =
+                        AddTransactionViewModel(db, application, i.account, context!!)
+                    if (i.txntype == "C")
+                        viewModel.creditmoney(
+                            false,
+                            i.amount,
+                            i.desc,
+                            SimpleDateFormat("d/M/yyyy").format(Date()),
+                            orderbyDate
                         )
-                        db.scheduleTransaction(sch)
-                    }
-                    catch (t: Throwable){
-                        toastmssg.value=t.message.toString()
-                    }
-                }
-            }
-        }
-        else {
-
-            var transto = transactions(
-                type = "C",
-                orderBydate = orderByDate,
-                subaccountID = transferto,
-                amount = amount,
-                date = date,
-                description = desc + " From " + subaccount.name,
-                amountafter = (totalamount.value?.minus(amount)),
-                transferto = transferto
-            )
-
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
-                    try {
-                        transferedto = db.getSubAccountID(transferto)
-                        var trans = transactions(
-                            type = "T",
-                            orderBydate = orderByDate,
-                            subaccountID = subaccountid.toLong(),
-                            amount = amount,
-                            date = date,
-                            description = desc + " To " + transferedto?.name,
-                            amountafter = (totalamount.value?.minus(amount)),
-                            transferto = transferto
+                    else if (i.txntype == "D")
+                        viewModel.debitmoney(
+                            false,
+                            i.amount,
+                            i.desc,
+                            SimpleDateFormat("d/M/yyyy").format(Date()),
+                            orderbyDate
                         )
-                        db.addTransaction(trans)
-                        db.addTransaction(transto)
-                        total()
-                    } catch (t: Throwable) {
-                        toastmssg.value = t.message.toString()
-                    }
+                    else if (i.txntype == "T")
+                        viewModel.transfermoney(
+                            false,
+                            i.amount,
+                            i.desc,
+                            SimpleDateFormat("d/M/yyyy").format(Date()),
+                            i.transferto,
+                            orderbyDate
+                        )
                 }
             }
         }
-    }
 
-    fun refresh()
-    {
-        uiScope.launch {
-            total()
-            getSubAccountList()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("IncomeManager", "IncomeManager Scheduler", NotificationManager.IMPORTANCE_HIGH)
+            channel.description="Scheduled Transactions notifications"
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
         }
-    }
 
-    private suspend fun total()
-    {
-        withContext(Dispatchers.IO){
-            totalamount.postValue(db.getTotalCredit(subaccountid.toLong())-db.getTotalDebit(subaccountid.toLong())-db.getTotalTransferred(subaccountid.toLong()))
-            subaccount=db.getSubAccountID(subaccountid.toLong())
-            subaccount.balance= totalamount.value!!
-            db.updateSubAccount(subaccount)
-            Log.e("AddTransactionViewModel", "Updated DB")
-            Log.e("AddTransactionViewModel", subaccount.toString())
-            Log.e("AddTransactionViewModel", totalamount.toString())
+        var builder = NotificationCompat.Builder(context, "IncomeManager")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("Scheduled Transaction")
+            .setContentText("Scheduled Transactions")
+            .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
 
-        }
+        var compat = NotificationManagerCompat.from(context)
+        compat.notify(123, builder.build())
+        return Result.success()
     }
 }
-
