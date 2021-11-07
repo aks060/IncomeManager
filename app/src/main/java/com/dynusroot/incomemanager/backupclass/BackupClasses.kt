@@ -579,7 +579,7 @@ class transactionsBackup: Serializable {
 class schedulesBackup: Serializable {
     var id: Long = 0
     var account: Long =0
-    var accountName: String? = null
+    var accountName: String=""
     var desc: String =""
     var amount: Double=0.0
     var interval: String=""
@@ -591,7 +591,7 @@ class schedulesBackup: Serializable {
     constructor(
         id: Long = 0,
         account: Long =0,
-        accountName: String?=null,
+        accountName: String,
         desc: String ="",
         amount: Double=0.0,
         interval: String="",
@@ -608,5 +608,7 @@ class schedulesBackup: Serializable {
         this.txntype=txntype
         this.transferto=transferto
         this.specificTime=specificTime
+        this.accountName=accountName
+        this.transfertoName=transfertoName
     }
 }

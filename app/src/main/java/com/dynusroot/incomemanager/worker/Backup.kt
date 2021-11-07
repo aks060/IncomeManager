@@ -575,7 +575,7 @@ class Backup (var context: Context, workerParams: WorkerParameters) : Worker(
             var temp3= db.getschedules()
             var schedules = ArrayList<schedulesBackup>()
             for (i in temp3){
-                schedules.add(schedulesBackup(i.id, i.account, i.accountName, i.desc, i.amount, i.interval, i.txntype, i.transferto, i.transfertoName, i.specificTime))
+                schedules.add(schedulesBackup(i.id, i.account, i.accountName!!, i.desc, i.amount, i.interval, i.txntype, i.transferto, i.transfertoName, i.specificTime))
             }
 
             var obj = arrayListOf(accounts, subaccounts, transactions, schedules)
