@@ -538,7 +538,7 @@ class ScheduleTransactionWork (var context: Context, workerParams: WorkerParamet
                 val weekday: String = simpleDateFormat.format(Date())
                 val monthdate = SimpleDateFormat("d").format(Date()).toLong()
                 val month = SimpleDateFormat("M").format(Date()).toLong()
-                var orderbyDate = SimpleDateFormat("dd/MM/yyyy").format(Date())
+                var orderbyDate = SimpleDateFormat("yyyy/MM/dd").format(Date())
                 var yearly = false
                 if (i.interval == "Y") {
                     val date = SimpleDateFormat("d/M/yyyy").parse(i.specificTime)
