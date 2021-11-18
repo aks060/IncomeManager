@@ -665,20 +665,20 @@ class AddTransactionViewModel(val db: db_dao,
         }
         else {
 
-            var transto = transactions(
-                type = "C",
-                orderBydate = orderByDate,
-                subaccountID = transferto,
-                amount = amount,
-                date = date,
-                description = desc + " From " + subaccount.name,
-                amountafter = (totalamount.value?.minus(amount)),
-                transferto = transferto
-            )
-
             uiScope.launch {
                 withContext(Dispatchers.IO) {
                     try {
+                        subaccount=db.getSubAccountID(subaccountid.toLong())
+                        var transto = transactions(
+                            type = "C",
+                            orderBydate = orderByDate,
+                            subaccountID = transferto,
+                            amount = amount,
+                            date = date,
+                            description = desc + " From " + subaccount.name,
+                            amountafter = (totalamount.value?.minus(amount)),
+                            transferto = transferto
+                        )
                         transferedto = db.getSubAccountID(transferto)
                         var trans = transactions(
                             type = "T",
