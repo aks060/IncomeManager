@@ -575,8 +575,8 @@ interface db_dao {
     @Query("SELECT SUM(amount) FROM transactions WHERE type='T' AND subaccountID=:sub")
     fun getTotalTransferred(sub:Long): Double
 
-    @Query("SELECT * FROM subaccounts WHERE id!=:accid")
-    fun getSubAccountExcept(accid:Long): List<subaccounts>
+    @Query("SELECT * FROM subaccounts WHERE id!=:accid and parentaccount=:par")
+    fun getSubAccountExceptByPar(accid:Long, par:Long): List<subaccounts>
 
     @Query("UPDATE accounts SET totalBalance=(SELECT COALESCE(SUM(balance), 0) FROM subaccounts WHERE parentaccount=:accid) WHERE id=:accid")
     fun updateAccountBalance(accid: Long)

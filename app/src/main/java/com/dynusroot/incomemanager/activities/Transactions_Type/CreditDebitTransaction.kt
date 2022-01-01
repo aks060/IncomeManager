@@ -525,8 +525,7 @@ import kotlin.collections.ArrayList
 import android.widget.AdapterView
 
 import android.widget.AdapterView.OnItemSelectedListener
-
-
+import com.dynusroot.incomemanager.database.models.accounts
 
 
 class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
@@ -539,7 +538,9 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
     private var orderByDate:String=""
     private lateinit var transactiontype:String
     private var subaccList: ArrayList<subaccounts> = ArrayList()
+    private var accList: ArrayList<accounts> = ArrayList()
     private lateinit var spinner:Spinner
+    private lateinit var spinner2: Spinner
     private var toBeTransferAcc: Long? =null
     private lateinit var scheduled: SwitchCompat
     private var scheduleType:String? = null
@@ -556,6 +557,7 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         var weekly_schedule = findViewById<LinearLayout>(R.id.weekly_schedule)
         var week_option = findViewById<Spinner>(R.id.week_option)
         var options = ArrayList<String>()
+        var options2 = ArrayList<String>()
 
         var bundle = intent.extras
         subaccountid = bundle!!.getString("subaccountid").toString().toLong()
@@ -653,12 +655,12 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         }
 
 
-        viewModel.getSubAccountList()
+        viewModel.getAccountList()
         viewModel.accountList.observe(this, androidx.lifecycle.Observer {
-            subaccList=it
+            accList=it
             Log.e("CreditDebitOption Ob", it.toString())
             options = ArrayList()
-            for (i in subaccList){
+            for (i in accList){
                 options.add(i.name)
             }
 
@@ -672,7 +674,32 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
                         position: Int,
                         id: Long
                     ) {
-                        toBeTransferAcc=subaccList.get(position).id
+                        viewModel.getSubAccountList(accList.get(position).id)
+                        viewModel.subaccList.observe(this@CreditDebitTransaction, androidx.lifecycle.Observer {
+                            subaccList=it
+                            options2=ArrayList()
+                            for(i in subaccList){
+                                options2.add(i.name)
+                            }
+                            spinner2 = findViewById(R.id.selectsubacc)
+                            spinner2.adapter=ArrayAdapter<String>(this@CreditDebitTransaction, android.R.layout.simple_list_item_1, options2)
+                            spinner2.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                                override fun onItemSelected(
+                                    parent: AdapterView<*>?,
+                                    view: View?,
+                                    position: Int,
+                                    id: Long
+                                ){
+                                    toBeTransferAcc=subaccList.get(position).id
+                                }
+
+                                override fun onNothingSelected(p0: AdapterView<*>?) {
+                                    Toast.makeText(this@CreditDebitTransaction, "Please Select Account to transfer", Toast.LENGTH_LONG).show()
+                                    toBeTransferAcc=null
+                                }
+                            }
+                        })
+                        //toBeTransferAcc=subaccList.get(position).id
                     }
 
                     override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -694,7 +721,9 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         else if(transactiontype=="T") {
             title.text = "Add Transaction (Transfer)"
             var selectaccountwala=findViewById<LinearLayout>(R.id.select_accountwala)
+            var selectsubwala=findViewById<LinearLayout>(R.id.select_subwala)
             selectaccountwala.visibility=View.VISIBLE
+            selectsubwala.visibility=View.VISIBLE
         }
 
 

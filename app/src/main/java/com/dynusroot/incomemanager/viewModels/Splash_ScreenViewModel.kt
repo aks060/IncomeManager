@@ -516,6 +516,9 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomWarnings
 import com.dynusroot.incomemanager.database.db_dao
 import com.dynusroot.incomemanager.database.incomemanager_db
+import com.dynusroot.incomemanager.database.models.accounts
+import com.dynusroot.incomemanager.database.models.subaccounts
+import com.dynusroot.incomemanager.database.models.transactions
 import com.dynusroot.incomemanager.database.models.userDBModel
 import com.dynusroot.incomemanager.objects.user
 import kotlinx.coroutines.*
@@ -526,6 +529,7 @@ class Splash_ScreenViewModel
 
     lateinit var loggedin:MutableLiveData<Int>
     val job= Job()
+    private val refresh=RefreshAccounts(db)
     var ret: MutableLiveData<Int> = MutableLiveData(-1)
     lateinit var toastmssg:MutableLiveData<String>
     val uiScope= CoroutineScope(Dispatchers.Main+job)
@@ -550,6 +554,7 @@ class Splash_ScreenViewModel
             user.fullname= userres!!.name
             user.username= userres!!.username
             loggedin.value=1
+            refresh.refreshAmount()
         }
         else
         {

@@ -507,10 +507,13 @@ That's all there is to it!
 
  */
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.dynusroot.incomemanager.database.db_dao
 import com.dynusroot.incomemanager.database.models.accounts
+import com.dynusroot.incomemanager.database.models.subaccounts
+import com.dynusroot.incomemanager.database.models.transactions
 import kotlinx.coroutines.*
 
 class DashboardViewModel(val db: db_dao,
@@ -518,12 +521,14 @@ class DashboardViewModel(val db: db_dao,
 ) : AndroidViewModel(application) {
 
     private val job= Job()
+    private val refresh=RefreshAccounts(db)
     lateinit var toastmssg: MutableLiveData<String>
     lateinit var accountlist:MutableLiveData<ArrayList<accounts>>
     private val uiScope= CoroutineScope(Dispatchers.Main+job)
 
     init {
         toastmssg= MutableLiveData()
+        refresh.refreshAmount()
         accountlist= MutableLiveData(ArrayList())
         uiScope.launch {
             fetchacc()
@@ -546,6 +551,7 @@ class DashboardViewModel(val db: db_dao,
     {
         uiScope.launch {
             fetchacc()
+            refresh.refreshAmount()
         }
     }
 

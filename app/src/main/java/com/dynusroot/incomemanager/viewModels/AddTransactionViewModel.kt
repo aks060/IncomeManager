@@ -527,7 +527,8 @@ class AddTransactionViewModel(val db: db_dao,
     private val job= Job()
     lateinit var toastmssg: MutableLiveData<String>
     lateinit var totalamount: MutableLiveData<Double>
-    lateinit var accountList: MutableLiveData<ArrayList<subaccounts>>
+    lateinit var accountList: MutableLiveData<ArrayList<accounts>>
+    lateinit var subaccList: MutableLiveData<ArrayList<subaccounts>>
     private lateinit var subaccount: subaccounts
     private val uiScope= CoroutineScope(Dispatchers.Main+job)
 
@@ -535,17 +536,26 @@ class AddTransactionViewModel(val db: db_dao,
         toastmssg= MutableLiveData()
         totalamount= MutableLiveData(0.0)
         accountList= MutableLiveData(ArrayList())
-        getSubAccountList()
+        subaccList= MutableLiveData(ArrayList())
+        getAccountList()
         uiScope.launch {
             total()
         }
     }
 
-    fun getSubAccountList()
+    fun getAccountList(){
+        uiScope.launch {
+            withContext(Dispatchers.IO){
+                accountList.postValue(db.getaccounts() as ArrayList<accounts>)
+            }
+        }
+    }
+
+    fun getSubAccountList(acc:Long)
     {
         uiScope.launch {
             withContext(Dispatchers.IO){
-                accountList.postValue(db.getSubAccountExcept(subaccountid) as ArrayList)
+                subaccList.postValue(db.getSubAccountExceptByPar(subaccountid, acc) as ArrayList)
             }
         }
     }
@@ -705,7 +715,7 @@ class AddTransactionViewModel(val db: db_dao,
     {
         uiScope.launch {
             total()
-            getSubAccountList()
+            getAccountList()
         }
     }
 

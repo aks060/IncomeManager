@@ -522,6 +522,7 @@ class AccountPageViewModel(val db: db_dao,
 ) : AndroidViewModel(application) {
 
     private val job= Job()
+    private val refresh=RefreshAccounts(db)
     lateinit var toastmssg: MutableLiveData<String>
     lateinit var subaccountlist:MutableLiveData<ArrayList<subaccounts>>
 
@@ -532,7 +533,7 @@ class AccountPageViewModel(val db: db_dao,
         subaccountlist= MutableLiveData(ArrayList())
         uiScope.launch {
             fetchsubacc()
-            total()
+            refresh.refreshAmount()
         }
     }
 
@@ -573,16 +574,9 @@ class AccountPageViewModel(val db: db_dao,
         uiScope.launch {
             subaccountlist.postValue(ArrayList())
             fetchsubacc()
-            total()
+            refresh.refreshAmount()
             Log.e("AccountPageViewModel", "Completed DB")
             Log.e("AccountPageViewModel", subaccountlist.value.toString())
-        }
-    }
-
-    private suspend fun total()
-    {
-        withContext(Dispatchers.IO){
-            db.updateAccountBalance(accountid)
         }
     }
 }

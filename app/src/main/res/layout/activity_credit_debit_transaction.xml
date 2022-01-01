@@ -205,14 +205,14 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/select_accountwala"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/select_accountwala"
-            android:visibility="gone"
-            android:weightSum="5"
             android:layout_marginVertical="5dp"
+            android:orientation="horizontal"
             android:paddingHorizontal="20dp"
-            android:orientation="horizontal">
+            android:visibility="gone"
+            android:weightSum="5">
 
             <TextView
                 android:id="@+id/textView10"
@@ -222,10 +222,34 @@
                 android:text="Account" />
 
             <Spinner
+                android:id="@+id/selectaccount"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/select_subwala"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginVertical="5dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone"
+            android:weightSum="5">
+
+            <TextView
+                android:id="@+id/textView11"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/selectaccount"
-                />
+                android:layout_weight="2"
+                android:text="SubAccount" />
+
+            <Spinner
+                android:id="@+id/selectsubacc"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content" />
 
 
         </LinearLayout>
