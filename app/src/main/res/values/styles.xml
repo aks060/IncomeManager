@@ -1,7 +1,6 @@
 <resources>
 
-    <style name="Widget.Theme.IncomeManager.ActionBar.Fullscreen" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:background">@color/white</item>
+    <style name="Widget.Theme.IncomeManager.ActionBar.Fullscreen" parent="Theme.AppCompat.DayNight.NoActionBar">
     </style>
 
     <style name="Widget.Theme.IncomeManager.ButtonBar.Fullscreen" parent="">

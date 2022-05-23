@@ -22,8 +22,6 @@
             android:layout_height="match_parent"
             android:text="Account >> Subaccount"
             android:textSize="20sp"
-            android:textColor="@color/black"
-            android:background="@color/white"
             />
     </androidx.appcompat.widget.Toolbar>
 
@@ -33,7 +31,6 @@
         android:layout_height="wrap_content"
         android:text="Rs 1000"
         android:gravity="center"
-        android:textColor="@color/black"
         android:textSize="@dimen/h3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
