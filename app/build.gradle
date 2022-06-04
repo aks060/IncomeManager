@@ -6,13 +6,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 28
     buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "com.dynusroot.incomemanager"
-        minSdkVersion 22
-        targetSdkVersion 22
+        minSdkVersion 28
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 28
         versionCode 1
         versionName "1.1.3"
 

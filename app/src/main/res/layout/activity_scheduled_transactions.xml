@@ -22,8 +22,6 @@
             android:layout_height="match_parent"
             android:text="Scheduled Transactions"
             android:textSize="20sp"
-            android:textColor="@color/black"
-            android:background="@color/white"
             />
     </androidx.appcompat.widget.Toolbar>
 
