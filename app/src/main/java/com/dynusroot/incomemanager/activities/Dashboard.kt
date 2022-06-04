@@ -539,6 +539,7 @@ class Dashboard : AppCompatActivity() {
     private lateinit var gridView: GridView
     companion object {
         private const val STORAGE_PERMISSION_CODE = 100
+        private const val SMS_READ_PERMISSION_CODE = 101
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

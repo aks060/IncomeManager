@@ -507,13 +507,23 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
+import android.Manifest
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import com.dynusroot.incomemanager.R
 
 class MainActivity : AppCompatActivity() {
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        var reqPermission = arrayOf(
+            Manifest.permission_group.STORAGE,
+            Manifest.permission.RECEIVE_SMS,
+            Manifest.permission.READ_SMS
+        )
+        requestPermissions(reqPermission, 200)
         setContentView(R.layout.activity_main)
     }
 }
