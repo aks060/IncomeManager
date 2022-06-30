@@ -526,6 +526,7 @@ class TransactionsViewModel(val db: db_dao,
     lateinit var toastmssg: MutableLiveData<String>
     lateinit var transactions: MutableLiveData<ArrayList<transactions>>
     private val uiScope= CoroutineScope(Dispatchers.Main+job)
+    lateinit var subaccount: subaccounts
 
 
     init {
@@ -536,6 +537,7 @@ class TransactionsViewModel(val db: db_dao,
             total()
             refreshTransactions()
         }
+        fetchSubAccount()
     }
 
     fun deletesubaccount() {
@@ -602,5 +604,14 @@ class TransactionsViewModel(val db: db_dao,
         }
         transactions.value?.removeAt(pos)
         Log.e("TransactionViewModel", transactions.value.toString())
+    }
+
+    private fun fetchSubAccount()
+    {
+        uiScope.launch {
+            withContext(Dispatchers.IO) {
+                subaccount=db.getSubAccountID(subaccountid)
+            }
+        }
     }
 }

@@ -543,6 +543,8 @@ class SubAccountsAdapter(var context: Context, var data:ArrayList<subaccounts>):
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         var view: View = View.inflate(context, R.layout.accounts_grid_view, null)
         var balance=view.findViewById<TextView>(R.id.main_accountbalance)
+        var minbal=view.findViewById<TextView>(R.id.minsubbalance)
+        minbal.visibility=View.VISIBLE
         var addacc= Dialog(context, )
         if(position!=this.count-1)
         {
@@ -553,7 +555,12 @@ class SubAccountsAdapter(var context: Context, var data:ArrayList<subaccounts>):
         var acc_id=view.findViewById<TextView>(R.id.accountid)
         acc_name.text=data.get(position).name
         acc_id.text=data.get(position).id.toString()
-        balance.text="Total: Rs Sub "+"%.2f".format(data.get(position).balance)
+        balance.text="Total: Rs "+"%.2f".format(data.get(position).balance)
+        if(data.get(position).minbalance!=null){
+            minbal.text="Min Bal: Rs "+"%.2f".format(data.get(position).minbalance)
+        }
+        else
+            minbal.text="Min Bal: None"
 
         return view
     }
