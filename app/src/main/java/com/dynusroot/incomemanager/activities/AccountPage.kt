@@ -531,6 +531,7 @@ class AccountPage : AppCompatActivity() {
     private lateinit var subaccounts:ArrayList<subaccounts>
     private lateinit var viewModel:AccountPageViewModel
     private lateinit var gridView: GridView
+    public lateinit var bundle: Bundle
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -540,7 +541,7 @@ class AccountPage : AppCompatActivity() {
         var intent=getIntent()
         var bundle=intent.extras
         accountid= bundle?.getString("accountid").toString()
-        findViewById<TextView>(R.id.accname).text=bundle?.getString("account")
+        findViewById<TextView>(R.id.accname).text=bundle?.getString("accountname")
 
         var db=incomemanager_db.get(application).dbDao
         viewModel= AccountPageViewModel(db, application, accountid = accountid.toLong())
@@ -583,13 +584,14 @@ class AccountPage : AppCompatActivity() {
         })
 
         gridView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            var bundle=Bundle()
+            var bundle2=Bundle()
+            var bundle=getIntent().extras
             var intent=Intent(this, Transactions::class.java)
-            bundle.putString("accountid", accountid)
-            bundle.putString("accountname", bundle?.getString("account"))
-            bundle.putString("subaccountid", adapter.data.get(id.toInt()).id.toString())
-            bundle.putString("subaccountname", view.findViewById<TextView>(R.id.account_name).text.toString())
-            intent.putExtras(bundle)
+            bundle2.putString("accountid", accountid)
+            bundle2.putString("accountname", bundle?.getString("accountname"))
+            bundle2.putString("subaccountid", adapter.data.get(id.toInt()).id.toString())
+            bundle2.putString("subaccountname", view.findViewById<TextView>(R.id.account_name).text.toString())
+            intent.putExtras(bundle2)
 
             startActivity(intent)
         }

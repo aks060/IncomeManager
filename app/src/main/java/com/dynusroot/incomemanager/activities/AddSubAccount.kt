@@ -509,15 +509,12 @@ That's all there is to it!
  */
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.MultiAutoCompleteTextView
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.dynusroot.incomemanager.R
 import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.viewModels.AddSubAccountViewModel
 import android.util.Log
+import android.widget.*
 
 class AddSubAccount : AppCompatActivity() {
     private lateinit var viewModel: AddSubAccountViewModel
@@ -529,7 +526,7 @@ class AddSubAccount : AppCompatActivity() {
         var intent=intent
         var bundle=intent.extras
         var parentaccount= bundle?.getString("accountid")!!.toLong()
-        var accountname=bundle.getString("account").toString()
+        var accountname=bundle.getString("accountname").toString()
 
         val db=incomemanager_db.get(application).dbDao
         viewModel= AddSubAccountViewModel(db, application)
@@ -537,6 +534,8 @@ class AddSubAccount : AppCompatActivity() {
         viewModel.toastmssg.observe(this, Observer {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
+
+        findViewById<TextView>(R.id.account_name_title).text=accountname
 
         var submit=findViewById<Button>(R.id.addnewsubaccount)
         submit.setOnClickListener {

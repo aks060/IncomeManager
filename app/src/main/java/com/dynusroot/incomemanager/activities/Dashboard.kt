@@ -565,7 +565,7 @@ class Dashboard : AppCompatActivity() {
             var bundle=Bundle()
             var name=view.findViewById<TextView>(R.id.account_name).text.toString()
             var accountid=view.findViewById<TextView>(R.id.accountid).text.toString()
-            bundle.putString("account", name)
+            bundle.putString("accountname", name)
             bundle.putString("accountid", accountid)
             Log.i("Dashboard", accountid)
             intent.putExtras(bundle)
