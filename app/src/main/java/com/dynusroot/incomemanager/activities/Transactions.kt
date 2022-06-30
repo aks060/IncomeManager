@@ -511,6 +511,9 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -616,6 +619,29 @@ class Transactions : AppCompatActivity(), SubAccountTransactionAdapter.popupOpti
         viewModel.total.observe(this, Observer {
             total.text="Rs "+it.toString()
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        var inflater = MenuInflater(this)
+        inflater.inflate(R.menu.subaccount_menu, menu)
+        return true;
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId==R.id.editAccount) {
+            var bundle = intent.extras
+            var intent = Intent(this, AddSubAccount::class.java)
+            var sbAcc = viewModel.subaccount
+            Log.e("Subaccount Detail", sbAcc.toString())
+            bundle.putString("SubAccountName", subaccountname)
+            bundle.putLong("SubAccountId", sbAcc.id)
+            bundle.putString("Description", sbAcc.description.toString())
+            sbAcc.minbalance?.let { bundle.putString("MinimumBalance", it.toString()) }
+            bundle.putBoolean("isEdit", true)
+            intent.putExtras(bundle)
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {

@@ -509,6 +509,7 @@ That's all there is to it!
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -594,6 +595,7 @@ class AddTransactionViewModel(val db: db_dao,
                     try {
                         db.addTransaction(trans)
                         total()
+                        toastmssg.postValue("Amount Credited!")
                     } catch (t: Throwable) {
                         toastmssg.value = t.message.toString()
                     }
@@ -604,6 +606,11 @@ class AddTransactionViewModel(val db: db_dao,
 
     fun debitmoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, orderByDate: String, interval: String?=null, timing: String?=null)
     {
+        if(subaccount.minbalance!=null && subaccount.minbalance!! > (subaccount.balance - amount))
+        {
+            toastmssg.postValue("Minimum Balance Criteria Failed!!")
+            return
+        }
         if(isschedule){
             var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
                 txntype="D",
@@ -636,6 +643,7 @@ class AddTransactionViewModel(val db: db_dao,
                     try {
                         db.addTransaction(trans)
                         total()
+                        toastmssg.postValue("Amount Debited!")
                     } catch (t: Throwable) {
                         toastmssg.value = t.message.toString()
                     }
@@ -646,6 +654,12 @@ class AddTransactionViewModel(val db: db_dao,
 
     fun transfermoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, transferto:Long, orderByDate: String, interval: String?=null, timing: String?=null)
     {
+        if(subaccount.minbalance!=null && subaccount.minbalance!! > (subaccount.balance - amount))
+        {
+            toastmssg.postValue("Minimum Balance Criteria Failed!!")
+            return
+        }
+
         var transferedto: subaccounts?=null
         uiScope.launch {
             withContext(Dispatchers.IO){
@@ -703,6 +717,7 @@ class AddTransactionViewModel(val db: db_dao,
                         db.addTransaction(trans)
                         db.addTransaction(transto)
                         total()
+                        toastmssg.postValue("Amount Transferred!")
                     } catch (t: Throwable) {
                         toastmssg.value = t.message.toString()
                     }

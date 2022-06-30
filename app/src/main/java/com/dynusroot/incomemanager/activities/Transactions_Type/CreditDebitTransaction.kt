@@ -568,6 +568,10 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         Intervaloptions.addAll(arrayOf("Daily", "Weekly", "Monthly", "Yearly"))
         Log.e("Options", Intervaloptions.toString())
 
+        viewModel.toastmssg.observe(this, androidx.lifecycle.Observer {
+            Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
+        })
+
         var weekdays=arrayOf(
             "Sun",
             "Mon",
@@ -783,11 +787,9 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
             if (amount > 0 && desc != "" && datetext!="") {
                 if(transactiontype=="C") {
                     viewModel.creditmoney(isschedule= isschedule, amount = amount, desc, datetext, orderByDate, interval = scheduleType, timing = scheduleTiming)
-                    Toast.makeText(this, "Amount Credited", Toast.LENGTH_LONG).show()
                 }
                 else if(transactiontype=="D"){
                     viewModel.debitmoney(isschedule= isschedule, amount, desc, datetext, orderByDate, interval = scheduleType, timing = scheduleTiming)
-                    Toast.makeText(this, "Amount Debited", Toast.LENGTH_LONG).show()
                 }
                 else
                     if(transactiontype=="T")

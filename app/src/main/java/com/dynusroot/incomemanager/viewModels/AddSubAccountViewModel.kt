@@ -531,27 +531,70 @@ class AddSubAccountViewModel(val db: db_dao,
         toastmssg=MutableLiveData()
     }
 
-    fun addsubaccount(name: String, desc: String?, bal:Double, parent:Long)
+    fun addsubaccount(name: String, desc: String?, bal:Double, parent:Long, minBal:String?)
     {
         uiScope.launch {
-            inneraddsubaccount(name, desc, bal, parent)
+            inneraddsubaccount(name, desc, bal, parent, minBal)
         }
     }
 
-    private suspend fun inneraddsubaccount(n: String, d: String?, b:Double, p:Long) {
+    fun updatesubaccount(subaccountid: Long, name: String, desc: String?, minBal:String?)
+    {
+        uiScope.launch {
+            innerupdatesubaccount(subaccountid, name, desc, minBal)
+        }
+    }
+
+    private suspend fun inneraddsubaccount(n: String, d: String?, b:Double, p:Long, minBal: String?) {
         try {
             withContext(Dispatchers.IO) {
                 var desc = ""
+                var mbal:Double?=null
                 if (d != null) {
                     desc = d
                 }
-                var subacc = subaccounts(name = n, description = desc, balance = b, parentaccount = p)
+                if(minBal!="")
+                    mbal=minBal!!.toDouble()
+                var subacc = subaccounts(name = n, description = desc, balance = b, parentaccount = p, minbalance = mbal)
                 var id=db.addSubAccount(subacc)
                 if(b>0)
                 {
                     addtransaction(b, id)
                 }
                 toastmssg.postValue("Sub Account Added successfully")
+            }
+        }
+        catch (t: Throwable)
+        {
+            toastmssg.value=t.message.toString()
+        }
+    }
+
+
+    private suspend fun innerupdatesubaccount(id:Long, n: String, d: String?, minBal: String?) {
+        try {
+            withContext(Dispatchers.IO) {
+                var desc = ""
+                var subacc = db.getSubAccountID(id)
+                var mbal:Double?=null
+                if (d != null) {
+                    desc = d
+                }
+                if(minBal!="")
+                {
+                    mbal=minBal!!.toDouble()
+                    if(subacc.balance < mbal)
+                    {
+                        toastmssg.postValue("Cannot Update: Minimum Balance Criteria Failed!!")
+                        return@withContext
+                    }
+                }
+                subacc.name=n
+                subacc.description=desc
+                subacc.minbalance=mbal
+                db.updateSubAccount(subacc)
+
+                toastmssg.postValue("Sub Account Updated successfully")
             }
         }
         catch (t: Throwable)
