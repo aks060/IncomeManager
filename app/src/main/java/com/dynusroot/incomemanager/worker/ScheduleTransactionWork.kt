@@ -552,6 +552,7 @@ class ScheduleTransactionWork (var context: Context, workerParams: WorkerParamet
                 if (i.interval == "D" || (i.interval == "W" && weekday == i.specificTime) || (i.interval == "M" && monthdate == i.specificTime!!.toLong()) || yearly) {
                     var viewModel =
                         AddTransactionViewModel(db, application, i.account, context!!)
+                    viewModel.refresh()
                     if (i.txntype == "C")
                         viewModel.creditmoney(
                             false,
