@@ -507,6 +507,7 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
  */
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
@@ -514,6 +515,7 @@ import com.dynusroot.incomemanager.R
 import com.dynusroot.incomemanager.database.incomemanager_db
 import com.dynusroot.incomemanager.viewModels.AddSubAccountViewModel
 import android.util.Log
+import android.view.View
 import android.widget.*
 
 class AddSubAccount : AppCompatActivity() {
@@ -527,6 +529,7 @@ class AddSubAccount : AppCompatActivity() {
         var bundle=intent.extras
         var parentaccount= bundle?.getString("accountid")!!.toLong()
         var accountname=bundle.getString("accountname").toString()
+        var isEdit=bundle.getBoolean("isEdit")
 
         val db=incomemanager_db.get(application).dbDao
         viewModel= AddSubAccountViewModel(db, application)
@@ -537,11 +540,30 @@ class AddSubAccount : AppCompatActivity() {
 
         findViewById<TextView>(R.id.account_name_title).text=accountname
 
+        var btnsubname=findViewById<EditText>(R.id.accsubname)
+        var btndesc=findViewById<MultiAutoCompleteTextView>(R.id.accsubdesc)
+        var btnmin=findViewById<EditText>(R.id.minbalance)
         var submit=findViewById<Button>(R.id.addnewsubaccount)
+
+        if(isEdit==true){
+            findViewById<LinearLayout>(R.id.balanceLayout).visibility= View.GONE
+            var sub_accname = bundle.getString("SubAccountName")
+            var sub_desc = bundle.getString("Description")
+            var sub_min = bundle.getString("MinimumBalance")
+            if(sub_accname!=null)
+                btnsubname.setText(sub_accname)
+            if(sub_desc!=null)
+                btndesc.setText(sub_desc)
+            if(sub_min!=null)
+                btnmin.setText(sub_min.toString())
+            submit.text="Edit Sub-Account"
+        }
+
         submit.setOnClickListener {
             var subname=findViewById<EditText>(R.id.accsubname).text.toString()
             var desc=findViewById<MultiAutoCompleteTextView>(R.id.accsubdesc).text.toString()
             var bal=findViewById<EditText>(R.id.balance).text.toString()
+            var minbal=findViewById<EditText>(R.id.minbalance).text.toString()
             if(subname=="" || bal=="")
             {
                 Log.i("SubAccount", subname)
@@ -550,7 +572,10 @@ class AddSubAccount : AppCompatActivity() {
             }
             else
             {
-                viewModel.addsubaccount(subname, desc, bal = bal.toDouble(), parent = parentaccount)
+                if(isEdit==true)
+                    viewModel.updatesubaccount(bundle.getLong("SubAccountId"), subname, desc, minbal)
+                else
+                    viewModel.addsubaccount(subname, desc, bal = bal.toDouble(), parent = parentaccount, minbal)
             }
         }
 

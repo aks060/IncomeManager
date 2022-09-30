@@ -509,6 +509,7 @@ That's all there is to it!
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -529,7 +530,7 @@ class AddTransactionViewModel(val db: db_dao,
     lateinit var totalamount: MutableLiveData<Double>
     lateinit var accountList: MutableLiveData<ArrayList<accounts>>
     lateinit var subaccList: MutableLiveData<ArrayList<subaccounts>>
-    private lateinit var subaccount: subaccounts
+    private var subaccount: subaccounts?=null
     private val uiScope= CoroutineScope(Dispatchers.Main+job)
 
     init {
@@ -539,6 +540,9 @@ class AddTransactionViewModel(val db: db_dao,
         subaccList= MutableLiveData(ArrayList())
         getAccountList()
         uiScope.launch {
+            withContext(Dispatchers.IO){
+                subaccount=db.getSubAccountID(subaccountid.toLong())
+            }
             total()
         }
     }
@@ -566,8 +570,8 @@ class AddTransactionViewModel(val db: db_dao,
             var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
                 txntype="C",
                 specificTime=timing!!,
-                accountName = subaccount.name
-                )
+                accountName = subaccount!!.name
+            )
             uiScope.launch {
                 withContext(Dispatchers.IO){
                     try{
@@ -594,6 +598,7 @@ class AddTransactionViewModel(val db: db_dao,
                     try {
                         db.addTransaction(trans)
                         total()
+                        toastmssg.postValue("Amount Credited!")
                     } catch (t: Throwable) {
                         toastmssg.value = t.message.toString()
                     }
@@ -604,40 +609,47 @@ class AddTransactionViewModel(val db: db_dao,
 
     fun debitmoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, orderByDate: String, interval: String?=null, timing: String?=null)
     {
-        if(isschedule){
-            var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
-                txntype="D",
-                specificTime=timing!!,
-                accountName = subaccount.name
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO){
-                    try{
-                        db.scheduleTransaction(sch)
-                    }
-                    catch (t: Throwable){
-                        toastmssg.value=t.message.toString()
-                    }
+        uiScope.launch {
+            withContext(Dispatchers.IO) {
+                if (subaccount!!.minbalance != null && subaccount!!.minbalance!! > (subaccount!!.balance!! - amount)) {
+                    toastmssg.postValue("Minimum Balance Criteria Failed!!")
+                    return@withContext
                 }
-            }
-        }
-        else {
-            var trans = transactions(
-                type = "D",
-                orderBydate = orderByDate,
-                subaccountID = subaccountid.toLong(),
-                amount = amount,
-                date = date,
-                description = desc,
-                amountafter = (totalamount.value?.minus(amount))
-            )
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
+                if (isschedule) {
+                    var sch = schedules(
+                        account = subaccountid.toLong(),
+                        desc = desc,
+                        amount = amount,
+                        interval = interval!!,
+                        txntype = "D",
+                        specificTime = timing!!,
+                        accountName = subaccount!!.name
+                    )
                     try {
-                        db.addTransaction(trans)
-                        total()
+                        db.scheduleTransaction(sch)
                     } catch (t: Throwable) {
                         toastmssg.value = t.message.toString()
+                    }
+                } else {
+                    var trans = transactions(
+                        type = "D",
+                        orderBydate = orderByDate,
+                        subaccountID = subaccountid.toLong(),
+                        amount = amount,
+                        date = date,
+                        description = desc,
+                        amountafter = (totalamount.value?.minus(amount))
+                    )
+                    uiScope.launch {
+                        withContext(Dispatchers.IO) {
+                            try {
+                                db.addTransaction(trans)
+                                total()
+                                toastmssg.postValue("Amount Debited!")
+                            } catch (t: Throwable) {
+                                toastmssg.value = t.message.toString()
+                            }
+                        }
                     }
                 }
             }
@@ -646,23 +658,24 @@ class AddTransactionViewModel(val db: db_dao,
 
     fun transfermoney(isschedule:Boolean=false, amount:Double, desc:String, date:String, transferto:Long, orderByDate: String, interval: String?=null, timing: String?=null)
     {
-        var transferedto: subaccounts?=null
         uiScope.launch {
             withContext(Dispatchers.IO){
-                transferedto=db.getSubAccountID(transferto)
-            }
-        }
+                if(subaccount!!.minbalance!=null && subaccount!!.minbalance!! > (subaccount!!.balance - amount))
+                {
+                    toastmssg.postValue("Minimum Balance Criteria Failed!!")
+                    return@withContext
+                }
 
-        if(isschedule){
-            uiScope.launch {
-                withContext(Dispatchers.IO){
+                var transferedto = db.getSubAccountID(transferto)
+
+                if(isschedule){
                     try{
                         var trans=db.getSubAccountID(transferto)
                         var sch=schedules(account = subaccountid.toLong(), desc = desc, amount = amount, interval = interval!!,
                             txntype="T",
                             transferto=transferto,
                             specificTime=timing!!,
-                            accountName = subaccount.name,
+                            accountName = subaccount!!.name,
                             transfertoName = trans.name
                         )
                         db.scheduleTransaction(sch)
@@ -671,12 +684,7 @@ class AddTransactionViewModel(val db: db_dao,
                         toastmssg.value=t.message.toString()
                     }
                 }
-            }
-        }
-        else {
-
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
+                else {
                     try {
                         subaccount=db.getSubAccountID(subaccountid.toLong())
                         var transto = transactions(
@@ -685,7 +693,7 @@ class AddTransactionViewModel(val db: db_dao,
                             subaccountID = transferto,
                             amount = amount,
                             date = date,
-                            description = desc + " From " + subaccount.name,
+                            description = desc + " From " + subaccount!!.name,
                             amountafter = (totalamount.value?.minus(amount)),
                             transferto = transferto
                         )
@@ -703,6 +711,7 @@ class AddTransactionViewModel(val db: db_dao,
                         db.addTransaction(trans)
                         db.addTransaction(transto)
                         total()
+                        toastmssg.postValue("Amount Transferred!")
                     } catch (t: Throwable) {
                         toastmssg.value = t.message.toString()
                     }
@@ -724,8 +733,8 @@ class AddTransactionViewModel(val db: db_dao,
         withContext(Dispatchers.IO){
             totalamount.postValue(db.getTotalCredit(subaccountid.toLong())-db.getTotalDebit(subaccountid.toLong())-db.getTotalTransferred(subaccountid.toLong()))
             subaccount=db.getSubAccountID(subaccountid.toLong())
-            subaccount.balance= totalamount.value!!
-            db.updateSubAccount(subaccount)
+            subaccount!!.balance= totalamount.value!!
+            db.updateSubAccount(subaccount!!)
             Log.e("AddTransactionViewModel", "Updated DB")
             Log.e("AddTransactionViewModel", subaccount.toString())
             Log.e("AddTransactionViewModel", totalamount.toString())

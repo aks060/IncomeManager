@@ -519,5 +519,6 @@ data class subaccounts(
     var name: String,
     var parentaccount: Long,
     var description:String,
-    var balance:Double=0.0
+    var balance:Double=0.0,
+    var minbalance:Double?=null
 )
