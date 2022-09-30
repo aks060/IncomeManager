@@ -560,8 +560,8 @@ class CreditDebitTransaction : AppCompatActivity(), DatePickerDialog.OnDateSetLi
         var options2 = ArrayList<String>()
 
         var bundle = intent.extras
-        subaccountid = bundle!!.getString("subaccountid").toString().toLong()
-        transactiontype = bundle!!.getString("transactiontype").toString()
+        subaccountid = bundle?.getString("subaccountid")!!.toLong()
+        transactiontype = bundle?.getString("transactiontype").toString()
         val db = incomemanager_db.get(application).dbDao
         viewModel = AddTransactionViewModel(db, application, subaccountid, this)
         var Intervaloptions = ArrayList<String>()

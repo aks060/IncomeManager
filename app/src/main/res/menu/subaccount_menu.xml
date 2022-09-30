@@ -4,4 +4,7 @@
     <item android:id="@+id/editAccount"
         android:title="Edit Account"
         app:showAsAction="never"/>
+    <item android:id="@+id/clearTxn"
+        android:title="Clear Transactions"
+        app:showAsAction="never"/>
 </menu>

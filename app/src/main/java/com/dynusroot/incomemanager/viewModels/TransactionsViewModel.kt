@@ -595,14 +595,24 @@ class TransactionsViewModel(val db: db_dao,
         }
     }
 
-    fun deleteTransaction(id: Long, pos:Int)
+    fun deleteTransaction(id: Long=-1, pos:Int = 0, deleteAll:Boolean=false)
     {
         uiScope.launch {
             withContext(Dispatchers.IO){
-                db.deleteTransaction(id)
+                if(deleteAll){
+                    db.deleteTransactionsSub(subaccountid)
+                } else
+                    db.deleteTransaction(id)
             }
         }
-        transactions.value?.removeAt(pos)
+
+        if(deleteAll){
+            transactions.value?.clear()
+            transactions.postValue(ArrayList())
+            Log.e("Clear", "Cleared all values")
+        }
+        else
+            transactions.value?.removeAt(pos)
         Log.e("TransactionViewModel", transactions.value.toString())
     }
 
