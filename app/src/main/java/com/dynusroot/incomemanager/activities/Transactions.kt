@@ -641,6 +641,17 @@ class Transactions : AppCompatActivity(), SubAccountTransactionAdapter.popupOpti
             intent.putExtras(bundle)
             startActivity(intent)
         }
+        else if(item.itemId==R.id.clearTxn) {
+            var alert=AlertDialog.Builder(this)
+            alert.setTitle("Are you sure?")
+            alert.setMessage("Do you want to delete all transactions of this sub-account?")
+            alert.setPositiveButton("Yes") { dialogInterface: DialogInterface, i: Int ->
+                // Delete All
+                viewModel.deleteTransaction(deleteAll = true)
+            }
+            alert.setNegativeButton("No") { dialogInterface: DialogInterface, i: Int -> }
+            alert.show()
+        }
         return super.onOptionsItemSelected(item)
     }
 
